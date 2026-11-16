@@ -1,22 +1,33 @@
-# Tenant Management System - Navigation Practical 3 Walkthrough
+# Tenant Management System - Group Project Architecture & Room Integration Walkthrough
 
-Successfully implemented **Navigation Practical 3: Navigation, Safe Args and the Navigation Drawer** (`Lab 7_ Navigation Practical 3.pdf`).
+Successfully implemented **Lab 8 Group Project Architecture (Stages 1 through 5)** (`Lab 8 - App architecture, Git and App distribution.pdf`).
 
 ## Changes Implemented
 
-### 1. App Bar & NavHost (`activity_main.xml` & `MainActivity.kt`)
-- Updated `activity_main.xml` to wrap the layout in `DrawerLayout`, containing a `MaterialToolbar` as the App Bar and a `FragmentContainerView` (`NavHostFragment`).
-- Updated `MainActivity.kt` to initialize `NavController`, `AppBarConfiguration`, set up the Action Bar (`setSupportActionBar`), handle Up/Back navigation (`onSupportNavigateUp`), inflate the options menu (`main_menu.xml`), and handle drawer navigation (`navView.setupWithNavController`) and logout functionality.
+### 1. Architectural Package Organization (Stage 1)
+- Reorganized all Kotlin source files into clean architectural layers:
+  - `ui.auth`: `LoginActivity.kt`, `RegisterActivity.kt`
+  - `ui.main`: `MainActivity.kt`
+  - `ui.dashboard`: `DashboardFragment.kt`
+  - `ui.tenants`: `AddTenantFragment.kt`, `ViewTenantsFragment.kt`
+  - `ui.viewmodel`: `TenantViewModel.kt`
+  - `data.model`: `Tenant.kt` (Room Entity)
+  - `data.local`: `TenantDao.kt`, `TenantDatabase.kt`
+  - `data.repository`: `TenantRepository.kt`
 
-### 2. Safe Args & Fragment Navigation (`nav_graph.xml`, `DashboardFragment.kt`, `AddTenantFragment.kt`, `ViewTenantsFragment.kt`)
-- Added slide animations and back-stack cleanup (`popUpTo="@id/dashboardFragment"`) in `nav_graph.xml`.
-- Updated `DashboardFragment` buttons to navigate using generated `DashboardFragmentDirections`.
-- Updated `AddTenantFragment` save action to add the tenant to `TenantRepository` and pass the `Tenant` object safely via Safe Args (`AddTenantFragmentDirections.actionAddTenantFragmentToViewTenantsFragment(tenant)`).
-- Updated `ViewTenantsFragment` to receive the `newTenant` argument using `navArgs()`, bind it via Data Binding (`binding.tenant`), and wire up the `CALL TENANT` button using an implicit intent (`ACTION_DIAL`).
+### 2. ViewModel & LiveData (Stage 2)
+- Implemented `TenantViewModel` extending `AndroidViewModel` to manage tenant operations and expose LiveData observables (`tenantCountText`, `totalRentText`, `allTenantsText`).
 
-### 3. Navigation Drawer & Options Menu (`drawer_menu.xml`, `main_menu.xml`, `nav_header.xml`)
-- Created `drawer_menu.xml` and `main_menu.xml` with destination IDs matching the navigation graph.
-- Created `nav_header.xml` header layout and bound the signed-in user's email from `LoginActivity` intent extras to `headerEmailTextView`.
+### 3. Room Database (Stage 3)
+- Converted `Tenant` into a Room `@Entity` with a primary key.
+- Created `TenantDao` with `@Insert` and `@Query` operations.
+- Created `TenantDatabase` singleton instance with SQLite room builder.
+
+### 4. UI & ViewModel Integration (Stage 4)
+- Connected `DashboardFragment`, `AddTenantFragment`, and `ViewTenantsFragment` to use `activityViewModels<TenantViewModel>()` and observe LiveData changes or hand over save actions.
+
+### 5. Data Layer Integration (Stage 5)
+- Connected `TenantRepository` and `TenantViewModel` directly to the Room database (`TenantDatabase`), ensuring tenants persist locally across app restarts.
 
 ## Validation Results
 - **Build**: Successfully compiled and built debug APK (`app:assembleDebug`) with 0 errors.
